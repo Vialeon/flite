@@ -15,7 +15,7 @@ func (m *str_split) Apply(ctx *sqlite.Context, values ...sqlite.Value) {
 	delim := values[1].Text()
 
 	split := strings.Split(input, delim)
-	ctx.ResultText(strings.Join(split, ","))
+	ctx.ResultText(strings.Join(split, " , "))
 
 }
 
