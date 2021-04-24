@@ -1,6 +1,7 @@
 package http_request
 
 import (
+	"encoding/json"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -10,6 +11,12 @@ import (
 )
 
 type http_post struct{}
+
+type http_post_vars struct {
+	Url          string
+	Content_type string
+	Request      string
+}
 
 // TODO add PUT and POST stuff
 
@@ -23,17 +30,16 @@ func (m *http_post) Apply(ctx *sqlite.Context, values ...sqlite.Value) {
 		content_type string
 		contents     []byte
 		response     *http.Response
+		vars         http_post_vars
 	)
-	for _, v := range values {
-		print(v.Text(), "\n")
+	err = json.Unmarshal([]byte(values[0].Text()), &vars)
+	if err != nil {
+		ctx.ResultError(err)
 	}
-	if len(values) > 2 {
-		url = values[0].Text()
-		content_type = values[1].Text()
-		request = strings.NewReader(values[2].Text())
-	}
-	print("url is ", url, " content type is ", content_type, " request is ", request)
-	print("and the request is \n", request)
+
+	url = vars.Url
+	content_type = vars.Content_type
+	request = strings.NewReader(vars.Request)
 	response, err = http.Post(url, string(content_type), request)
 	if err != nil {
 		contents, _ = ioutil.ReadAll(response.Body)
